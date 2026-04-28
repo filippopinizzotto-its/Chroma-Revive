@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChromaRevive | AI Image Colorization</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>ChromaRevive</h1>
+        <p class="subtitle">Riporta in vita i tuoi ricordi con la nostra AI avanzata. Colori vibranti, dettagli cristallini, in un solo istante.</p>
+    </header>
+
+    <main class="container">
+        <section class="upload-section">
+            <label class="upload-zone" id="drop-zone">
+                <svg class="upload-icon" viewBox="0 0 24 24">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                </svg>
+                <div class="upload-text">
+                    Trascina qui la tua foto o <span>sfoglia</span>
+                </div>
+                <input type="file" id="file-input" accept="image/*">
+            </label>
+        </section>
+
+        <section class="comparison-wrapper" id="slider-container">
+            <div class="label label-before">Originale B&W</div>
+            <div class="label label-after">ChromaRevive AI</div>
+            
+            <img src="placeholder.png" alt="Colorized" class="comparison-img after-img" id="after-img">
+            <img src="placeholder.png" alt="Original" class="comparison-img before-img" id="before-img">
+            
+            <div class="slider-handle" id="slider-handle">
+                <div class="slider-button">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M18 8l4 4-4 4M6 8l-4 4 4 4"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
