@@ -6,42 +6,60 @@
     <title>ChromaRevive | AI Image Colorization</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
 
     <header>
         <h1>ChromaRevive</h1>
-        <p class="subtitle">Riporta in vita i tuoi ricordi con la nostra AI avanzata. Colori vibranti, dettagli cristallini, in un solo istante.</p>
+        <p class="subtitle">Trasforma i tuoi scatti in bianco e nero in capolavori a colori grazie alla nostra intelligenza artificiale avanzata.</p>
     </header>
 
     <main class="container">
         <section class="upload-section">
             <label class="upload-zone" id="drop-zone">
-                <svg class="upload-icon" viewBox="0 0 24 24">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                 </svg>
                 <div class="upload-text">
-                    Trascina qui la tua foto o <span>sfoglia</span>
+                    Trascina qui la tua foto o <span>sfoglia i file</span>
                 </div>
                 <input type="file" id="file-input" accept="image/*">
             </label>
         </section>
 
-        <section class="comparison-wrapper" id="slider-container">
-            <div class="label label-before">Originale B&W</div>
-            <div class="label label-after">ChromaRevive AI</div>
-            
-            <img src="placeholder.png" alt="Colorized" class="comparison-img after-img" id="after-img">
-            <img src="placeholder.png" alt="Original" class="comparison-img before-img" id="before-img">
-            
-            <div class="slider-handle" id="slider-handle">
-                <div class="slider-button">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M18 8l4 4-4 4M6 8l-4 4 4 4"/>
-                    </svg>
+        <section class="comparison-container">
+            <div class="comparison-wrapper" id="slider-container">
+                <div class="label label-before">Originale B&W</div>
+                <div class="label label-after">AI Colorized</div>
+                
+                <!-- Loading Overlay -->
+                <div class="loading-overlay" id="loading-overlay">
+                    <div class="spinner"></div>
+                    <p>L'AI sta elaborando i colori...</p>
                 </div>
+
+                <img src="placeholder.png" alt="Colorized" class="comparison-img after-img" id="after-img">
+                <img src="placeholder.png" alt="Original" class="comparison-img before-img" id="before-img">
+                
+                <div class="slider-handle" id="slider-handle"></div>
+            </div>
+
+            <div class="actions" id="actions-panel" style="display: none;">
+                <button class="btn btn-secondary" onclick="location.reload()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"></path></svg>
+                    Ricomincia
+                </button>
+                <button class="btn btn-primary" id="download-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>
+                    Scarica Foto
+                </button>
             </div>
         </section>
     </main>
