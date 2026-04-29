@@ -1,111 +1,118 @@
-const container = document.getElementById('slider-container');
+const sliderHandle = document.getElementById('slider-handle');
+const sliderContainer = document.getElementById('slider-container');
 const beforeImg = document.getElementById('before-img');
-const handle = document.getElementById('slider-handle');
+const afterImg = document.getElementById('after-img');
 const fileInput = document.getElementById('file-input');
 const dropZone = document.getElementById('drop-zone');
-const afterImg = document.getElementById('after-img');
 const loadingOverlay = document.getElementById('loading-overlay');
 const actionsPanel = document.getElementById('actions-panel');
 const downloadBtn = document.getElementById('download-btn');
 
-let isDragging = false;
-let colorizedBlobUrl = null;
+let isSliding = false;
+let selectedModelId = 'coco15k';
 
-// Slider Logic
-const moveSlider = (e) => {
-    if (!isDragging && e.type !== 'mousemove' && e.type !== 'touchmove') return;
-    
-    const rect = container.getBoundingClientRect();
-    let x = (e.pageX || (e.touches ? e.touches[0].pageX : 0)) - rect.left;
-    
-    if (x < 0) x = 0;
-    if (x > rect.width) x = rect.width;
-    
-    const percent = (x / rect.width) * 100;
-    beforeImg.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
-    handle.style.left = `${percent}%`;
-};
+// API URL (aggiorna questo URL dopo il deploy del backend)
+const API_URL = "http://localhost:8000";
 
-container.addEventListener('mousedown', () => isDragging = true);
-window.addEventListener('mouseup', () => isDragging = false);
+// --- Model Selection ---
+document.querySelectorAll('.model-option').forEach(option => {
+    option.addEventListener('click', (e) => {
+        e.stopPropagation(); // Evita di triggerare l'upload se clicchi sulle opzioni
+        document.querySelectorAll('.model-option').forEach(opt => opt.classList.remove('active'));
+        option.classList.add('active');
+        selectedModelId = option.dataset.model;
+        console.log("Model changed to:", selectedModelId);
+    });
+});
+
+// --- Slider Logic ---
+function moveSlider(e) {
+    if (!isSliding) return;
+    const rect = sliderContainer.getBoundingClientRect();
+    const x = (e.pageX || (e.touches ? e.touches[0].pageX : 0)) - rect.left;
+    let position = (x / rect.width) * 100;
+    position = Math.max(0, Math.min(100, position));
+    sliderHandle.style.left = `${position}%`;
+    beforeImg.style.clipPath = `inset(0 ${100 - position}% 0 0)`;
+}
+
+sliderHandle.addEventListener('mousedown', () => isSliding = true);
+window.addEventListener('mouseup', () => isSliding = false);
 window.addEventListener('mousemove', moveSlider);
-
-container.addEventListener('touchstart', () => isDragging = true);
-window.addEventListener('touchend', () => isDragging = false);
+sliderHandle.addEventListener('touchstart', () => isSliding = true);
+window.addEventListener('touchend', () => isSliding = false);
 window.addEventListener('touchmove', moveSlider);
 
-// File Upload Logic
-const handleFile = async (file) => {
-    if (file && file.type.startsWith('image/')) {
-        // 1. Anteprima locale immediata
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const src = e.target.result;
-            beforeImg.src = src;
-            afterImg.src = src;
-            
-            // Reset slider
-            beforeImg.style.clipPath = 'inset(0 50% 0 0)';
-            handle.style.left = '50%';
-        };
-        reader.readAsDataURL(file);
-
-        // 2. Mostra caricamento
-        loadingOverlay.classList.add('active');
-        actionsPanel.style.display = 'none';
-
-        // 3. Chiamata API
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const response = await fetch('http://localhost:8000/colorize', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) throw new Error('Errore server');
-
-            const blob = await response.blob();
-            if (colorizedBlobUrl) URL.revokeObjectURL(colorizedBlobUrl);
-            colorizedBlobUrl = URL.createObjectURL(blob);
-            
-            // 4. Mostra risultato
-            afterImg.src = colorizedBlobUrl;
-            actionsPanel.style.display = 'flex';
-            
-        } catch (error) {
-            console.error(error);
-            alert("Il server non risponde. Assicurati che main.py sia attivo.");
-        } finally {
-            loadingOverlay.classList.remove('active');
-        }
-    }
-};
-
-fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-
+// --- File Handling ---
 dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropZone.classList.add('drag-over');
 });
 
-dropZone.addEventListener('dragleave', () => {
-    dropZone.classList.remove('drag-over');
-});
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
 
 dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropZone.classList.remove('drag-over');
-    handleFile(e.dataTransfer.files[0]);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
 });
 
-// Download Logic
-downloadBtn.addEventListener('click', () => {
-    if (colorizedBlobUrl) {
-        const link = document.createElement('a');
-        link.href = colorizedBlobUrl;
-        link.download = 'chroma-revive-result.png';
-        link.click();
-    }
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files[0]) handleFile(e.target.files[0]);
 });
+
+function handleFile(file) {
+    if (!file.type.startsWith('image/')) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        // Anteprima immediata (anche se in grigio, l'utente vede che l'immagine è stata presa)
+        beforeImg.src = e.target.result;
+        afterImg.src = e.target.result;
+        
+        // Reset slider
+        sliderHandle.style.left = '50%';
+        beforeImg.style.clipPath = 'inset(0 50% 0 0)';
+        
+        // Avvia colorizzazione
+        colorizeImage(file);
+    };
+    reader.readAsDataURL(file);
+}
+
+async function colorizeImage(file) {
+    loadingOverlay.classList.add('active');
+    actionsPanel.style.display = 'none';
+    
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch(`${API_URL}/colorize?model_id=${selectedModelId}`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) throw new Error('Errore server');
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        
+        afterImg.src = url;
+        actionsPanel.style.display = 'flex';
+        
+        downloadBtn.onclick = () => {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `chroma-revive-${selectedModelId}.png`;
+            a.click();
+        };
+
+    } catch (error) {
+        console.error(error);
+        alert("Errore durante la colorizzazione. Verifica che il server sia attivo.");
+    } finally {
+        loadingOverlay.classList.remove('active');
+    }
+}

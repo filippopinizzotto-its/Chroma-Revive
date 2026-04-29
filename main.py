@@ -78,36 +78,49 @@ class ColorizerResNet(nn.Module):
 
 # --- Caricamento Modello ---
 
-# Cerchiamo il file preferito `colorizer_finale_coco15k.pth`, poi `colorizer_finale25k.pth`, poi `model.pth`
-if os.path.exists("colorizer_finale_coco15k.pth"):
-    MODEL_PATH = "colorizer_finale_coco15k.pth"
-elif os.path.exists("colorizer_finale25k.pth"):
-    MODEL_PATH = "colorizer_finale25k.pth"
-else:
-    MODEL_PATH = "model.pth"
+# Configurazione modelli disponibili
+AVAILABLE_MODELS = {
+    "coco15k": "colorizer_finale_coco15k.pth",
+    "final25k": "colorizer_finale25k.pth"
+}
 
 device = torch.device('cpu')
 model = ColorizerResNet().to(device)
+current_loaded_model = None
 
+def load_model_weights(model_id: str):
+    global current_loaded_model
+    if current_loaded_model == model_id:
+        return
+    
+    file_path = AVAILABLE_MODELS.get(model_id)
+    if not file_path or not os.path.exists(file_path):
+        # Fallback se il file specifico non esiste
+        files = [f for f in os.listdir(".") if f.endswith(".pth")]
+        if not files:
+            raise Exception("Nessun file .pth trovato nella directory")
+        file_path = files[0]
+        print(f"Modello {model_id} non trovato, uso fallback: {file_path}")
+    
+    try:
+        data = torch.load(file_path, map_location=device)
+        state_dict = data.get('model_state_dict', data.get('state_dict', data))
+        model.load_state_dict(state_dict)
+        model.eval()
+        current_loaded_model = model_id
+        print(f"Modello caricato: {file_path}")
+    except Exception as e:
+        print(f"Errore caricamento {file_path}: {e}")
+        raise e
+
+# Caricamento iniziale
 try:
-    data = torch.load(MODEL_PATH, map_location=device)
-    # Support common checkpoint formats
-    if isinstance(data, dict):
-        if 'model_state_dict' in data:
-            state_dict = data['model_state_dict']
-        elif 'state_dict' in data:
-            state_dict = data['state_dict']
-        else:
-            # assume it's already a state_dict-like mapping
-            state_dict = data
-    else:
-        state_dict = data
-
-    model.load_state_dict(state_dict)
-    model.eval()
-    print(f"Modello caricato da: {MODEL_PATH}")
-except Exception as e:
-    print(f"Errore caricamento pesi da {MODEL_PATH}: {e}")
+    load_model_weights("coco15k")
+except:
+    try:
+        load_model_weights("final25k")
+    except:
+        print("Attenzione: nessun modello caricato all'avvio.")
 
 # --- Processing Fedele al Notebook ---
 
@@ -153,8 +166,11 @@ def postprocess(output_tensor, L_full, orig_size):
     return Image.fromarray(rgb_result)
 
 @app.post("/colorize")
-async def colorize(file: UploadFile = File(...)):
+async def colorize(file: UploadFile = File(...), model_id: str = "coco15k"):
     try:
+        # Carica i pesi del modello selezionato
+        load_model_weights(model_id)
+        
         content = await file.read()
         L_tensor, L_full, orig_size = preprocess(content)
         with torch.no_grad():
@@ -167,11 +183,18 @@ async def colorize(file: UploadFile = File(...)):
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return {"error": str(e)}
+        return Response(content=f"Errore: {str(e)}", status_code=500)
+
+@app.get("/models")
+def get_models():
+    return [
+        {"id": "coco15k", "name": "COCO Dataset (15k)", "description": "Ottimizzato per scene varie e oggetti"},
+        {"id": "final25k", "name": "Final Model (25k)", "description": "Modello bilanciato ad alta precisione"}
+    ]
 
 @app.get("/")
 def home():
-    return {"status": "ready"}
+    return {"status": "ready", "current_model": current_loaded_model}
 
 if __name__ == "__main__":
     import uvicorn
