@@ -78,8 +78,10 @@ class ColorizerResNet(nn.Module):
 
 # --- Caricamento Modello ---
 
-# Cerchiamo il tuo file originale colorizer_finale25k.pth
-if os.path.exists("colorizer_finale25k.pth"):
+# Cerchiamo il file preferito `colorizer_finale_coco15k.pth`, poi `colorizer_finale25k.pth`, poi `model.pth`
+if os.path.exists("colorizer_finale_coco15k.pth"):
+    MODEL_PATH = "colorizer_finale_coco15k.pth"
+elif os.path.exists("colorizer_finale25k.pth"):
     MODEL_PATH = "colorizer_finale25k.pth"
 else:
     MODEL_PATH = "model.pth"
@@ -88,7 +90,19 @@ device = torch.device('cpu')
 model = ColorizerResNet().to(device)
 
 try:
-    state_dict = torch.load(MODEL_PATH, map_location=device)
+    data = torch.load(MODEL_PATH, map_location=device)
+    # Support common checkpoint formats
+    if isinstance(data, dict):
+        if 'model_state_dict' in data:
+            state_dict = data['model_state_dict']
+        elif 'state_dict' in data:
+            state_dict = data['state_dict']
+        else:
+            # assume it's already a state_dict-like mapping
+            state_dict = data
+    else:
+        state_dict = data
+
     model.load_state_dict(state_dict)
     model.eval()
     print(f"Modello caricato da: {MODEL_PATH}")
