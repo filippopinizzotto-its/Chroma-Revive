@@ -2,10 +2,12 @@ import torch
 import collections
 
 def inspect_model(path):
+    # Analizza un file di modello PyTorch per determinarne il formato e il contenuto.
     print(f"Inspecting: {path}")
     try:
         data = torch.load(path, map_location='cpu')
         
+        # Verifica se il file contiene solo i pesi (state_dict) o il modello completo
         if isinstance(data, collections.OrderedDict) or (isinstance(data, dict) and 'state_dict' in data):
             print("Detected: state_dict (weights only)")
             if isinstance(data, dict):

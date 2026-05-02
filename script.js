@@ -11,21 +11,17 @@ const downloadBtn = document.getElementById('download-btn');
 let isSliding = false;
 let selectedModelId = 'coco15k';
 
-// API URL (aggiorna questo URL dopo il deploy del backend)
 const API_URL = "http://localhost:8000";
 
-// --- Model Selection ---
 document.querySelectorAll('.model-option').forEach(option => {
     option.addEventListener('click', (e) => {
-        e.stopPropagation(); // Evita di triggerare l'upload se clicchi sulle opzioni
+        e.stopPropagation();
         document.querySelectorAll('.model-option').forEach(opt => opt.classList.remove('active'));
         option.classList.add('active');
         selectedModelId = option.dataset.model;
-        console.log("Model changed to:", selectedModelId);
     });
 });
 
-// --- Slider Logic ---
 function moveSlider(e) {
     if (!isSliding) return;
     const rect = sliderContainer.getBoundingClientRect();
@@ -43,7 +39,6 @@ sliderHandle.addEventListener('touchstart', () => isSliding = true);
 window.addEventListener('touchend', () => isSliding = false);
 window.addEventListener('touchmove', moveSlider);
 
-// --- File Handling ---
 dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropZone.classList.add('drag-over');
@@ -67,15 +62,12 @@ function handleFile(file) {
     
     const reader = new FileReader();
     reader.onload = (e) => {
-        // Anteprima immediata (anche se in grigio, l'utente vede che l'immagine è stata presa)
         beforeImg.src = e.target.result;
         afterImg.src = e.target.result;
         
-        // Reset slider
         sliderHandle.style.left = '50%';
         beforeImg.style.clipPath = 'inset(0 50% 0 0)';
         
-        // Avvia colorizzazione
         colorizeImage(file);
     };
     reader.readAsDataURL(file);
@@ -110,7 +102,6 @@ async function colorizeImage(file) {
         };
 
     } catch (error) {
-        console.error(error);
         alert("Errore durante la colorizzazione. Verifica che il server sia attivo.");
     } finally {
         loadingOverlay.classList.remove('active');

@@ -1,7 +1,4 @@
-/* =============================================
-   ChromaRevive — Premium Dark UI
-   Stile: Dark AI Tool (Amber/Gold Accent)
-   ============================================= */
+/* ChromaRevive — Premium Dark UI */
 
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
@@ -38,7 +35,6 @@
     user-select: none;
 }
 
-/* ---- BODY ---- */
 body {
     background: var(--bg);
     color: var(--text);
@@ -53,7 +49,7 @@ body {
     padding: 1.25rem 1.5rem 1rem;
 }
 
-/* ---- NOISE TEXTURE OVERLAY ---- */
+/* Texture di disturbo per ridurre il banding del gradiente */
 body::before {
     content: '';
     position: fixed;
@@ -64,7 +60,6 @@ body::before {
     opacity: 0.5;
 }
 
-/* ---- AMBIENT GLOW ---- */
 .bg-ambient {
     position: fixed;
     inset: 0;
@@ -98,7 +93,6 @@ body::before {
     100% { transform: translate(80px, 60px); }
 }
 
-/* ---- HEADER ---- */
 header {
     width: 100%;
     max-width: 1200px;
@@ -118,24 +112,6 @@ header {
     gap: 0.7rem;
 }
 
-.header-logo {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, var(--lilac), var(--lilac-dim));
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 16px var(--lilac-glow);
-    flex-shrink: 0;
-}
-
-.header-logo svg {
-    width: 18px;
-    height: 18px;
-    color: #0a0a0b;
-}
-
 h1 {
     font-family: var(--font-head);
     font-size: 1.4rem;
@@ -148,26 +124,6 @@ h1 span {
     color: var(--lilac);
 }
 
-.header-badge {
-    font-size: 0.65rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--lilac);
-    background: var(--lilac-glow-sm);
-    border: 1px solid rgba(209, 179, 255, 0.2);
-    padding: 3px 9px;
-    border-radius: 20px;
-}
-
-.header-subtitle {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    font-weight: 400;
-    letter-spacing: 0.1px;
-}
-
-/* ---- MAIN GRID ---- */
 main.container {
     width: 100%;
     max-width: 1200px;
@@ -179,7 +135,6 @@ main.container {
     z-index: 5;
 }
 
-/* ---- SIDEBAR (left panel) ---- */
 .upload-section {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -191,7 +146,6 @@ main.container {
     overflow: hidden;
 }
 
-/* ---- DROP ZONE ---- */
 .upload-zone {
     border: 1.5px dashed var(--border-hover);
     border-radius: var(--radius);
@@ -259,13 +213,11 @@ input[type="file"] {
     display: none;
 }
 
-/* ---- DIVIDER ---- */
 .divider {
     height: 1px;
     background: var(--border);
 }
 
-/* ---- MODEL SELECTION ---- */
 .model-selection {
     display: flex;
     flex-direction: column;
@@ -395,7 +347,6 @@ input[type="file"] {
     line-height: 1.4;
 }
 
-/* ---- COMPARISON PANEL (right) ---- */
 .comparison-container {
     display: flex;
     flex-direction: column;
@@ -415,7 +366,7 @@ input[type="file"] {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
-/* Placeholder background pattern */
+/* Griglia di sfondo per i placeholder */
 .comparison-wrapper::before {
     content: '';
     position: absolute;
@@ -449,7 +400,6 @@ input[type="file"] {
     z-index: 1;
 }
 
-/* ---- SLIDER HANDLE ---- */
 .slider-handle {
     position: absolute;
     z-index: 10;
@@ -485,7 +435,6 @@ input[type="file"] {
     background-position: center;
 }
 
-/* ---- LABELS ---- */
 .label {
     position: absolute;
     top: 16px;
@@ -516,7 +465,6 @@ input[type="file"] {
     background: rgba(10, 10, 11, 0.8);
 }
 
-/* ---- LOADING OVERLAY ---- */
 .loading-overlay {
     position: absolute;
     inset: 0;
@@ -583,7 +531,6 @@ input[type="file"] {
     to { transform: rotate(360deg); }
 }
 
-/* ---- ACTION BUTTONS ---- */
 .actions {
     display: flex;
     gap: 0.75rem;
@@ -636,7 +583,6 @@ input[type="file"] {
     background: rgba(255,255,255,0.04);
 }
 
-/* ---- RESPONSIVE ---- */
 @media (max-width: 960px) {
     body { overflow: auto; height: auto; }
     main.container {
