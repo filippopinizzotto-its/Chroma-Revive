@@ -3,86 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ChromaRevive — Trasforma le tue foto in bianco e nero in immagini a colori grazie all'intelligenza artificiale.">
     <title>ChromaRevive | AI Image Colorization</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="bg-blobs">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-    </div>
 
+    <!-- Ambient background glow -->
+    <div class="bg-ambient" aria-hidden="true"></div>
+
+    <!-- Header -->
     <header>
-        <h1>ChromaRevive</h1>
-        <p class="subtitle">Trasforma i tuoi scatti in bianco e nero in capolavori a colori grazie alla nostra intelligenza artificiale avanzata.</p>
+        <div class="header-brand">
+            <h1>Chroma<span>Revive</span></h1>
+        </div>
+        
     </header>
 
+    <!-- Main App -->
     <main class="container">
+
+        <!-- LEFT — Controls -->
         <section class="upload-section">
+
+            <!-- Drop Zone -->
             <label class="upload-zone" id="drop-zone">
                 <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                 </svg>
                 <div class="upload-text">
-                    Trascina qui la tua foto o <span>sfoglia i file</span>
+                    Trascina qui la tua foto<br>o <span>sfoglia i file</span>
                 </div>
                 <input type="file" id="file-input" accept="image/*">
             </label>
 
+            <div class="divider"></div>
+
+            <!-- Model Selection -->
             <div class="model-selection">
-                <p class="section-label">AI Intelligence Engine</p>
+                <p class="section-label">Motore AI</p>
                 <div class="model-options">
-                    <div class="model-option active" data-model="coco15k">
+
+                    <div class="model-option active" data-model="coco15k" id="model-coco15k">
                         <div class="option-header">
                             <span class="model-badge">COCO</span>
                             <div class="check-icon"></div>
                         </div>
                         <span class="model-title">COCO Dataset (15k)</span>
-                        <p>Addestrato con 15.000 immagini dal dataset COCO da 300.000 immagini.</p>
+                        <p>Addestrato su 15.000 immagini del dataset COCO.</p>
                     </div>
-                    <div class="model-option" data-model="final25k">
+
+                    <div class="model-option" data-model="final25k" id="model-final25k">
                         <div class="option-header">
                             <span class="model-badge secondary">MirFlickr</span>
                             <div class="check-icon"></div>
                         </div>
-                        <span class="model-title">MirFlickr(10k)</span>
-                        <p>Addestrato con 10.000 immagine dal dataset MirFlickr da 25.000 immagini.</p>
+                        <span class="model-title">MirFlickr (10k)</span>
+                        <p>Addestrato su 10.000 immagini dal dataset MirFlickr.</p>
                     </div>
+
                 </div>
             </div>
+
         </section>
 
+        <!-- RIGHT — Comparison Viewer -->
         <section class="comparison-container">
+
             <div class="comparison-wrapper" id="slider-container">
+
+                <!-- Labels -->
                 <div class="label label-before">Originale B&W</div>
                 <div class="label label-after">AI Colorized</div>
-                
+
                 <!-- Loading Overlay -->
                 <div class="loading-overlay" id="loading-overlay">
                     <div class="spinner"></div>
-                    <p>L'AI sta elaborando i colori...</p>
+                    <p>Elaborazione in corso…</p>
+                    <div class="loading-bar"></div>
                 </div>
 
-                <img src="placeholder.png" alt="Colorized" class="comparison-img after-img" id="after-img">
-                <img src="placeholder.png" alt="Original" class="comparison-img before-img" id="before-img">
-                
+                <!-- Images -->
+                <img src="placeholder.png" alt="Immagine colorizzata dall'AI" class="comparison-img after-img" id="after-img">
+                <img src="placeholder.png" alt="Immagine originale in bianco e nero" class="comparison-img before-img" id="before-img">
+
+                <!-- Drag handle -->
                 <div class="slider-handle" id="slider-handle"></div>
             </div>
 
+            <!-- Action buttons -->
             <div class="actions" id="actions-panel" style="display: none;">
-                <button class="btn btn-secondary" onclick="location.reload()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"></path></svg>
-                    Ricomincia
+                <button class="btn btn-secondary" id="restart-btn" onclick="location.reload()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"></path></svg>
+                    Nuova foto
                 </button>
                 <button class="btn btn-primary" id="download-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>
-                    Scarica Foto
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>
+                    Scarica
                 </button>
             </div>
+
         </section>
     </main>
 

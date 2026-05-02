@@ -78,10 +78,11 @@ class ColorizerResNet(nn.Module):
 
 # --- Caricamento Modello ---
 
+MODELS_DIR = "models"
 # Configurazione modelli disponibili
 AVAILABLE_MODELS = {
-    "coco15k": "colorizer_finale_coco15k.pth",
-    "final25k": "colorizer_finale25k.pth"
+    "coco15k": os.path.join(MODELS_DIR, "colorizer_finale_coco15k.pth"),
+    "final25k": os.path.join(MODELS_DIR, "colorizer_finale25k.pth")
 }
 
 device = torch.device('cpu')
@@ -94,12 +95,17 @@ def load_model_weights(model_id: str):
         return
     
     file_path = AVAILABLE_MODELS.get(model_id)
+    
+    # Se il file non esiste nel percorso previsto, prova a cercarlo nella cartella models
     if not file_path or not os.path.exists(file_path):
-        # Fallback se il file specifico non esiste
-        files = [f for f in os.listdir(".") if f.endswith(".pth")]
+        if not os.path.exists(MODELS_DIR):
+            os.makedirs(MODELS_DIR)
+            
+        files = [f for f in os.listdir(MODELS_DIR) if f.endswith(".pth")]
         if not files:
-            raise Exception("Nessun file .pth trovato nella directory")
-        file_path = files[0]
+            raise Exception(f"Nessun file .pth trovato nella directory {MODELS_DIR}")
+        
+        file_path = os.path.join(MODELS_DIR, files[0])
         print(f"Modello {model_id} non trovato, uso fallback: {file_path}")
     
     try:

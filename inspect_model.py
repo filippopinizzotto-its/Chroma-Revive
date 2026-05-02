@@ -24,4 +24,4 @@ def inspect_model(path):
         print(f"Error loading model: {e}")
 
 if __name__ == "__main__":
-    inspect_model("c:/Users/FilippoPinizzotto/OneDrive - ITS Angelo Rizzoli/Desktop/Deep Learning/Chroma-Revive/model.pth")
+    inspect_model("models/model.pth")
