@@ -298,10 +298,22 @@ input[type="file"] {
     border: 1px solid rgba(209, 179, 255, 0.25);
 }
 
+.model-badge.pro {
+    background: rgba(224, 138, 255, 0.12);
+    color: #e08aff;
+    border-color: rgba(224, 138, 255, 0.25);
+}
+
 .model-badge.secondary {
     background: rgba(130, 80, 255, 0.12);
     color: #b48aff;
     border-color: rgba(130, 80, 255, 0.25);
+}
+
+.model-badge.skip {
+    background: rgba(157, 78, 221, 0.12);
+    color: #9d4edd;
+    border-color: rgba(157, 78, 221, 0.25);
 }
 
 .check-icon {

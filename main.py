@@ -4,7 +4,8 @@ import torch.nn as nn
 from torchvision import models
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
+from fastapi.responses import Response, FileResponse
+from fastapi.staticfiles import StaticFiles
 from PIL import Image
 import numpy as np
 from skimage.color import rgb2lab, lab2rgb
@@ -74,8 +75,10 @@ class ColorizerResNet(nn.Module):
 
 MODELS_DIR = "models"
 AVAILABLE_MODELS = {
-    "coco15k": os.path.join(MODELS_DIR, "colorizer_finale_coco15k.pth"),
-    "final25k": os.path.join(MODELS_DIR, "colorizer_finale25k.pth")
+    "coco30k": os.path.join(MODELS_DIR, "colorizer_finale_coco30k.pth"),
+    "gan": os.path.join(MODELS_DIR, "colorizer_finale_Gan.pth"),
+    "skip": os.path.join(MODELS_DIR, "colorizer_finaleSkip.pth"),
+    "final1888": os.path.join(MODELS_DIR, "colorizer_finale1888.pth")
 }
 
 device = torch.device('cpu')
@@ -110,10 +113,10 @@ def load_model_weights(model_id: str):
         raise e
 
 try:
-    load_model_weights("coco15k")
+    load_model_weights("coco30k")
 except:
     try:
-        load_model_weights("final25k")
+        load_model_weights("gan")
     except:
         pass
 
@@ -153,32 +156,53 @@ def postprocess(output_tensor, L_full, orig_size):
     return Image.fromarray(rgb_result)
 
 @app.post("/colorize")
-async def colorize(file: UploadFile = File(...), model_id: str = "coco15k"):
+async def colorize(file: UploadFile = File(...), model_id: str = "coco30k"):
     try:
+        print(f"[COLORIZE] Starting with model_id={model_id}")
         load_model_weights(model_id)
+        print(f"[COLORIZE] Model loaded successfully")
         
         content = await file.read()
+        print(f"[COLORIZE] File read, size={len(content)} bytes")
+        
         L_tensor, L_full, orig_size = preprocess(content)
+        print(f"[COLORIZE] Preprocessing done, tensor shape={L_tensor.shape}, orig_size={orig_size}")
+        
         with torch.no_grad():
             output = model(L_tensor)
+        print(f"[COLORIZE] Model inference done, output shape={output.shape}")
+        
         result_img = postprocess(output, L_full, orig_size)
+        print(f"[COLORIZE] Postprocessing done")
         
         img_byte_arr = io.BytesIO()
         result_img.save(img_byte_arr, format='PNG')
+        print(f"[COLORIZE] Image saved to bytes, size={len(img_byte_arr.getvalue())} bytes")
         return Response(content=img_byte_arr.getvalue(), media_type="image/png")
     except Exception as e:
+        print(f"[COLORIZE ERROR] {type(e).__name__}: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return Response(content=f"Errore: {str(e)}", status_code=500)
 
 @app.get("/models")
 def get_models():
     return [
-        {"id": "coco15k", "name": "COCO Dataset (15k)", "description": "Ottimizzato per scene varie e oggetti"},
-        {"id": "final25k", "name": "Final Model (25k)", "description": "Modello bilanciato ad alta precisione"}
+        {"id": "coco30k", "name": "COCO Dataset (30k)", "description": "Massima precisione su scene complesse"},
+        {"id": "gan", "name": "Generative Adversarial Network", "description": "Modello basato su GAN per risultati realistici"},
+        {"id": "skip", "name": "Skip Connection Model", "description": "Architettura con skip connections avanzate"},
+        {"id": "final1888", "name": "Finale 1888", "description": "Modello addestrato su 1888 immagini"}
     ]
 
 @app.get("/")
 def home():
+    return FileResponse("index.html")
+
+@app.get("/status")
+def status():
     return {"status": "ready", "current_model": current_loaded_model}
+
+app.mount("/", StaticFiles(directory="."), name="static")
 
 if __name__ == "__main__":
     import uvicorn

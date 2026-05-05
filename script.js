@@ -9,9 +9,9 @@ const actionsPanel = document.getElementById('actions-panel');
 const downloadBtn = document.getElementById('download-btn');
 
 let isSliding = false;
-let selectedModelId = 'coco15k';
+let selectedModelId = 'coco30k';
 
-const API_URL = "http://localhost:8000";
+const API_URL = "http://127.0.0.1:8000";
 
 document.querySelectorAll('.model-option').forEach(option => {
     option.addEventListener('click', (e) => {

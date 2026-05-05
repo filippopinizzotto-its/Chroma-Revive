@@ -40,22 +40,40 @@
                 <p class="section-label">Motore AI</p>
                 <div class="model-options">
 
-                    <div class="model-option active" data-model="coco15k" id="model-coco15k">
+                    <div class="model-option active" data-model="coco30k" id="model-coco30k">
                         <div class="option-header">
-                            <span class="model-badge">COCO</span>
+                            <span class="model-badge pro">COCO PRO</span>
                             <div class="check-icon"></div>
                         </div>
-                        <span class="model-title">COCO Dataset (15k)</span>
-                        <p>Addestrato su 15.000 immagini del dataset COCO.</p>
+                        <span class="model-title">COCO Dataset (30k)</span>
+                        <p>Il doppio dei dati per una precisione superiore.</p>
                     </div>
 
-                    <div class="model-option" data-model="final25k" id="model-final25k">
+                    <div class="model-option" data-model="gan" id="model-gan">
                         <div class="option-header">
-                            <span class="model-badge secondary">MirFlickr</span>
+                            <span class="model-badge secondary">GAN</span>
                             <div class="check-icon"></div>
                         </div>
-                        <span class="model-title">MirFlickr (10k)</span>
-                        <p>Addestrato su 10.000 immagini dal dataset MirFlickr.</p>
+                        <span class="model-title">Generative Adversarial Network</span>
+                        <p>Modello basato su GAN per risultati realistici e naturali.</p>
+                    </div>
+
+                    <div class="model-option" data-model="skip" id="model-skip">
+                        <div class="option-header">
+                            <span class="model-badge skip">SKIP</span>
+                            <div class="check-icon"></div>
+                        </div>
+                        <span class="model-title">Skip Connections</span>
+                        <p>Architettura avanzata con skip connections per dettagli superiori e decoder addestrato con gan.</p>
+                    </div>
+
+                    <div class="model-option" data-model="final1888" id="model-final1888">
+                        <div class="option-header">
+                            <span class="model-badge">30 ore</span>
+                            <div class="check-icon"></div>
+                        </div>
+                        <span class="model-title">30h COCO</span>
+                        <p>Modello addestrato su tutti file del dataset COCO per dettagli eccezionali.</p>
                     </div>
 
                 </div>
