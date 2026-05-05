@@ -1,9 +1,9 @@
-fastapi
-uvicorn
+--index-url https://download.pytorch.org/whl/cpu
 torch
 torchvision
+fastapi
+uvicorn
 pillow
-python-multipart
 numpy
 scikit-image
-opencv-python
+opencv-python-headless
