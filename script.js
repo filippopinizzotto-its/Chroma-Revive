@@ -11,10 +11,8 @@ const downloadBtn = document.getElementById('download-btn');
 let isSliding = false;
 let selectedModelId = 'coco30k';
 
-// Rileva automaticamente se sei su localhost o su Render
-const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-    ? "http://127.0.0.1:8000"
-    : "https://chroma-revive.onrender.com";
+// Questo userà automaticamente l'indirizzo del server su cui è ospitato il sito
+const API_URL = window.location.origin;
 
 document.querySelectorAll('.model-option').forEach(option => {
     option.addEventListener('click', (e) => {
