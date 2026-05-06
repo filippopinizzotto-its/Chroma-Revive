@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ChromaRevive — Trasforma le tue foto in bianco e nero in immagini a colori grazie all'intelligenza artificiale.">
+    <meta name="description"
+        content="ChromaRevive — Trasforma le tue foto in bianco e nero in immagini a colori grazie all'intelligenza artificiale.">
     <title>ChromaRevive | AI Image Colorization</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <div class="bg-ambient" aria-hidden="true"></div>
@@ -25,8 +31,11 @@
         <section class="upload-section">
 
             <label class="upload-zone" id="drop-zone">
-                <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                    </path>
                 </svg>
                 <div class="upload-text">
                     Trascina qui la tua foto<br>o <span>sfoglia i file</span>
@@ -64,7 +73,8 @@
                             <div class="check-icon"></div>
                         </div>
                         <span class="model-title">Skip Connections</span>
-                        <p>Architettura avanzata con skip connections per dettagli superiori e decoder addestrato con gan.</p>
+                        <p>Architettura avanzata con skip connections per dettagli superiori e decoder addestrato con
+                            gan.</p>
                     </div>
 
                     <div class="model-option" data-model="final1888" id="model-final1888">
@@ -94,19 +104,26 @@
                     <div class="loading-bar"></div>
                 </div>
 
-                <img src="placeholder.png" alt="Immagine colorizzata dall'AI" class="comparison-img after-img" id="after-img">
-                <img src="placeholder.png" alt="Immagine originale in bianco e nero" class="comparison-img before-img" id="before-img">
+                <img src="placeholder.png" alt="Immagine colorizzata dall'AI" class="comparison-img after-img"
+                    id="after-img">
+                <img src="placeholder.png" alt="Immagine originale in bianco e nero" class="comparison-img before-img"
+                    id="before-img">
 
                 <div class="slider-handle" id="slider-handle"></div>
             </div>
 
             <div class="actions" id="actions-panel" style="display: none;">
                 <button class="btn btn-secondary" id="restart-btn" onclick="location.reload()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"></path></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15">
+                        </path>
+                    </svg>
                     Nuova foto
                 </button>
                 <button class="btn btn-primary" id="download-btn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+                    </svg>
                     Scarica
                 </button>
             </div>
@@ -116,4 +133,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>

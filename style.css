@@ -1,6 +1,6 @@
 /* ChromaRevive — Premium Dark UI */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 
 :root {
     --bg:           #0a0a0b;
@@ -10,7 +10,6 @@
     --border-hover: rgba(255, 255, 255, 0.14);
 
     --lilac:         #d1b3ff;
-    --lilac-dim:     #a080cc;
     --lilac-glow:    rgba(209, 179, 255, 0.15);
     --lilac-glow-sm: rgba(209, 179, 255, 0.08);
 
@@ -72,7 +71,7 @@ body::before {
     position: absolute;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(245, 200, 66, 0.06) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(209, 179, 255, 0.08) 0%, transparent 70%);
     top: -200px;
     left: -200px;
     animation: drift 25s ease-in-out infinite alternate;
@@ -604,6 +603,10 @@ input[type="file"] {
         max-width: 500px;
         margin: 0 auto;
         width: 100%;
+        order: 2;
+    }
+    .comparison-container {
+        order: 1;
     }
     .comparison-wrapper {
         aspect-ratio: 16 / 10;

@@ -7,3 +7,4 @@ pillow
 numpy
 scikit-image
 opencv-python-headless
+python-multipart
