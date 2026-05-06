@@ -12,7 +12,7 @@ let isSliding = false;
 let selectedModelId = 'coco30k';
 
 // Rileva automaticamente se sei su localhost o su Render
-const API_URL = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
+const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
     ? "http://127.0.0.1:8000"
     : "https://chroma-revive.onrender.com";
 
