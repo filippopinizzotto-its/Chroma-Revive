@@ -11,8 +11,22 @@ const downloadBtn = document.getElementById('download-btn');
 let isSliding = false;
 let selectedModelId = 'coco30k';
 
-// Questo userà automaticamente l'indirizzo del server su cui è ospitato il sito
-const API_URL = window.location.origin;
+// Se il frontend non è servito dal backend FastAPI, usa il server locale di default.
+const DEFAULT_API_URL = 'http://127.0.0.1:8000';
+const API_URL = (() => {
+    const origin = window.location.origin;
+    const port = window.location.port;
+
+    if (!origin || origin === 'null' || origin.startsWith('file://')) {
+        return DEFAULT_API_URL;
+    }
+
+    if (port === '8000') {
+        return origin;
+    }
+
+    return DEFAULT_API_URL;
+})();
 
 document.querySelectorAll('.model-option').forEach(option => {
     option.addEventListener('click', (e) => {
