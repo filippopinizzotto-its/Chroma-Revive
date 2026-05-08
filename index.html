@@ -22,19 +22,20 @@
 
     <div class="bg-ambient" aria-hidden="true"></div>
 
-    <header>
+    <header role="banner">
         <div class="header-brand">
             <img src="favicon.png" alt="ChromaRevive Logo" class="brand-icon">
             <h1>Chroma<span>Revive</span></h1>
         </div>
     </header>
 
-    <main class="container">
+    <main class="container" role="main">
 
-        <section class="upload-section">
+        <section class="upload-section" aria-labelledby="upload-heading">
+            <h2 id="upload-heading" class="sr-only">Caricamento Immagine</h2>
 
-            <label class="upload-zone" id="drop-zone">
-                <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            <label class="upload-zone" id="drop-zone" aria-label="Zona di caricamento: trascina un'immagine o clicca per sfogliare">
+                <svg class="upload-icon" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                         d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
@@ -43,8 +44,19 @@
                 <div class="upload-text">
                     Trascina qui la tua foto<br>o <span>sfoglia i file</span>
                 </div>
-                <input type="file" id="file-input" accept="image/*">
+                <input type="file" id="file-input" accept="image/*" aria-label="Seleziona file immagine">
             </label>
+
+            <div class="divider"></div>
+
+            <div class="examples-section">
+                <p class="section-label">Prova un esempio</p>
+                <div class="example-thumbnails">
+                    <img src="https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=150&q=80" alt="Esempio 1" class="example-thumb" data-url="https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80">
+                    <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=150&q=80" alt="Esempio 2" class="example-thumb" data-url="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80">
+                    <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=150&q=80" alt="Esempio 3" class="example-thumb" data-url="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80">
+                </div>
+            </div>
 
             <div class="divider"></div>
 
@@ -94,14 +106,14 @@
 
         </section>
 
-        <section class="comparison-container">
+        <section class="comparison-container" aria-label="Risultato della colorizzazione">
 
-            <div class="comparison-wrapper" id="slider-container">
+            <div class="comparison-wrapper" id="slider-container" role="application" aria-label="Slider di confronto prima e dopo">
 
                 <div class="label label-before">Originale B&W</div>
                 <div class="label label-after">AI Colorized</div>
 
-                <div class="loading-overlay" id="loading-overlay">
+                <div class="loading-overlay" id="loading-overlay" aria-live="polite">
                     <div class="spinner"></div>
                     <p>Elaborazione in corso…</p>
                     <div class="loading-bar"></div>
@@ -112,11 +124,11 @@
                 <img src="placeholder.png" alt="Immagine originale in bianco e nero" class="comparison-img before-img"
                     id="before-img">
 
-                <div class="slider-handle" id="slider-handle"></div>
+                <div class="slider-handle" id="slider-handle" role="slider" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" tabindex="0" aria-label="Maniglia slider di confronto"></div>
             </div>
 
             <div class="actions" id="actions-panel" style="display: none;">
-                <button class="btn btn-secondary" id="restart-btn" onclick="location.reload()">
+                <button class="btn btn-secondary" id="restart-btn" onclick="resetApp()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15">
                         </path>
@@ -133,6 +145,8 @@
 
         </section>
     </main>
+
+    <div id="toast-container" class="toast-container"></div>
 
     <script src="script.js"></script>
 </body>

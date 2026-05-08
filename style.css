@@ -180,6 +180,16 @@ main.container {
 .upload-zone.drag-over {
     border-color: var(--lilac);
     box-shadow: 0 0 0 1px var(--lilac), 0 0 24px var(--lilac-glow);
+    transform: scale(1.02);
+}
+
+.upload-zone.drag-over .upload-icon {
+    animation: bounce 0.5s ease infinite alternate;
+}
+
+@keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-5px); }
 }
 
 .upload-zone:hover::after,
@@ -252,7 +262,7 @@ input[type="file"] {
     border-radius: var(--radius-sm);
     padding: 0.85rem 1rem;
     cursor: pointer;
-    transition: all var(--transition);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
 }
@@ -267,18 +277,20 @@ input[type="file"] {
     background: var(--lilac);
     border-radius: 0 2px 2px 0;
     transform: scaleY(0);
-    transition: transform var(--transition);
+    transition: transform 0.3s ease;
 }
 
 .model-option:hover {
-    border-color: var(--border-hover);
+    border-color: var(--lilac);
     background: rgba(255, 255, 255, 0.03);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .model-option.active {
-    border-color: rgba(209, 179, 255, 0.3);
+    border-color: var(--lilac);
     background: var(--lilac-glow-sm);
-    box-shadow: inset 0 0 20px rgba(209, 179, 255, 0.04);
+    box-shadow: inset 0 0 20px rgba(209, 179, 255, 0.04), 0 0 12px var(--lilac-glow-sm);
 }
 
 .model-option.active::before {
@@ -428,11 +440,12 @@ input[type="file"] {
     background: rgba(255, 255, 255, 0.6);
     cursor: ew-resize;
     transform: translateX(-50%);
-    transition: background 0.2s ease;
+    transition: all 0.3s ease;
 }
 
-.slider-handle:hover {
+.slider-handle:hover, .slider-handle.active {
     background: var(--lilac);
+    width: 3px;
 }
 
 .slider-handle::after {
@@ -441,16 +454,22 @@ input[type="file"] {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     background: var(--surface);
     border: 2px solid var(--lilac);
     border-radius: 50%;
-    box-shadow: 0 0 16px var(--lilac-glow), 0 4px 12px rgba(0,0,0,0.4);
+    box-shadow: 0 0 20px var(--lilac-glow), 0 4px 12px rgba(0,0,0,0.4);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d1b3ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 8l4 4-4 4M6 8l-4 4 4 4'/%3E%3C/svg%3E");
     background-size: 16px;
     background-repeat: no-repeat;
     background-position: center;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.slider-handle:hover::after, .slider-handle.active::after {
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 0 30px var(--lilac-glow), 0 6px 18px rgba(0,0,0,0.5);
 }
 
 .label {
@@ -486,58 +505,95 @@ input[type="file"] {
 .loading-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(10, 10, 11, 0.82);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(10, 10, 11, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     z-index: 100;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
+    gap: 1.5rem;
     opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: var(--radius-lg);
 }
 
 .loading-overlay.active {
     opacity: 1;
-    pointer-events: all;
+    visibility: visible;
 }
 
 .spinner {
-    width: 44px;
-    height: 44px;
-    border: 2px solid rgba(209, 179, 255, 0.12);
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(209, 179, 255, 0.1);
     border-top-color: var(--lilac);
     border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+    animation: spin 1s cubic-bezier(0.5, 0.1, 0.4, 0.9) infinite;
+    filter: drop-shadow(0 0 10px var(--lilac-glow));
 }
 
 .loading-overlay p {
-    font-size: 0.82rem;
-    color: var(--text-dim);
-    font-weight: 400;
-    letter-spacing: 0.2px;
+    font-size: 0.9rem;
+    color: var(--text);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    font-family: var(--font-head);
 }
 
 .loading-bar {
-    width: 140px;
-    height: 2px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 2px;
+    width: 180px;
+    height: 3px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
     overflow: hidden;
+    position: relative;
 }
 
 .loading-bar::after {
     content: '';
     display: block;
     height: 100%;
-    width: 40%;
-    background: var(--lilac);
-    border-radius: 2px;
-    animation: shimmer 1.2s ease-in-out infinite;
+    width: 50%;
+    background: linear-gradient(90deg, transparent, var(--lilac), transparent);
+    border-radius: 4px;
+    animation: shimmer 1.5s infinite;
+}
+
+.example-thumbnails {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.example-thumb {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.example-thumb:hover {
+    border-color: var(--lilac);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
 }
 
 @keyframes shimmer {
@@ -599,6 +655,68 @@ input[type="file"] {
     border-color: var(--border-hover);
     color: var(--text);
     background: rgba(255,255,255,0.04);
+}
+
+/* Toast Notification System */
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.toast {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 280px;
+    max-width: 400px;
+    pointer-events: all;
+    animation: toast-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.3s ease;
+}
+
+.toast.toast-out {
+    animation: toast-out 0.3s ease forwards;
+}
+
+.toast.error {
+    border-color: rgba(255, 100, 100, 0.4);
+    background: rgba(40, 10, 10, 0.9);
+}
+
+.toast.success {
+    border-color: rgba(100, 255, 100, 0.4);
+    background: rgba(10, 40, 10, 0.9);
+}
+
+.toast-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.toast.error .toast-icon { color: #ff6464; }
+.toast.success .toast-icon { color: #64ff64; }
+.toast.info .toast-icon { color: var(--lilac); }
+
+@keyframes toast-in {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes toast-out {
+    to { transform: translateX(100%); opacity: 0; }
 }
 
 @media (max-width: 960px) {
