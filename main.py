@@ -12,8 +12,10 @@ from skimage.color import rgb2lab, lab2rgb
 import cv2
 import os
 
+# Inizializzazione FastAPI
 app = FastAPI()
 
+# Configurazione CORS per permettere richieste dal frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,6 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Blocco Decoder per l'architettura U-Net
 class DecoderBlock(nn.Module):
     def __init__(self, in_ch, out_ch):
         super().__init__()
@@ -38,21 +41,25 @@ class DecoderBlock(nn.Module):
     def forward(self, x):
         return self.block(x)
 
+# Architettura principale basata su ResNet18
 class ColorizerResNet(nn.Module):
     def __init__(self):
         super().__init__()
         resnet = models.resnet18(weights=None)
 
+        # Encoder: estrazione feature tramite ResNet
         self.enc1 = nn.Sequential(resnet.conv1, resnet.bn1, resnet.relu)
         self.enc2 = nn.Sequential(resnet.maxpool, resnet.layer1)
         self.enc3 = resnet.layer2
         self.enc4 = resnet.layer3
 
+        # Decoder: ricostruzione dei canali colore (ab)
         self.dec4 = DecoderBlock(256, 128)
         self.dec3 = DecoderBlock(128 + 128, 64)
         self.dec2 = DecoderBlock(64 + 64, 64)
         self.dec1 = DecoderBlock(64 + 64, 32)
 
+        # Output: 2 canali (a, b) con attivazione Tanh
         self.out = nn.Sequential(
             nn.Conv2d(32, 2, kernel_size=1),
             nn.Tanh()
@@ -66,6 +73,7 @@ class ColorizerResNet(nn.Module):
         e3 = self.enc3(e2)
         e4 = self.enc4(e3)
 
+        # Upsampling con Skip Connections
         d4 = self.dec4(e4)
         d3 = self.dec3(torch.cat([d4, e3], dim=1))
         d2 = self.dec2(torch.cat([d3, e2], dim=1))
@@ -73,6 +81,7 @@ class ColorizerResNet(nn.Module):
 
         return self.out(d1)
 
+# Configurazione percorsi modelli
 MODELS_DIR = "models"
 AVAILABLE_MODELS = {
     "coco30k": os.path.join(MODELS_DIR, "colorizer_finale_coco30k.pth"),
@@ -81,10 +90,12 @@ AVAILABLE_MODELS = {
     "final1888": os.path.join(MODELS_DIR, "colorizer_finale1888.pth")
 }
 
+# Inizializzazione modello su CPU
 device = torch.device('cpu')
 model = ColorizerResNet().to(device)
 current_loaded_model = None
 
+# Funzione per caricare i pesi del modello selezionato
 def load_model_weights(model_id: str):
     global current_loaded_model
     if current_loaded_model == model_id:
@@ -92,7 +103,7 @@ def load_model_weights(model_id: str):
     
     file_path = AVAILABLE_MODELS.get(model_id)
     
-    # Fallback al primo file .pth trovato se il percorso specificato non esiste
+    # Fallback al primo file .pth trovato se il percorso non esiste
     if not file_path or not os.path.exists(file_path):
         if not os.path.exists(MODELS_DIR):
             os.makedirs(MODELS_DIR)
@@ -112,6 +123,7 @@ def load_model_weights(model_id: str):
     except Exception as e:
         raise e
 
+# Caricamento iniziale del modello predefinito
 try:
     load_model_weights("coco30k")
 except:
@@ -120,32 +132,38 @@ except:
     except:
         pass
 
+# Pre-elaborazione dell'immagine: ridimensionamento e conversione LAB
 def preprocess(image_bytes):
     img_orig = Image.open(io.BytesIO(image_bytes)).convert('RGB')
     orig_size = img_orig.size
     
+    # Resize a 256x256 per l'inferenza
     img_256 = img_orig.resize((256, 256), Image.Resampling.LANCZOS)
     img_np_256 = np.array(img_256, dtype=np.float32) / 255.0
     lab_256 = rgb2lab(img_np_256).astype(np.float32)
     
+    # Mantenimento della luminosità originale a piena risoluzione
     img_np_full = np.array(img_orig, dtype=np.float32) / 255.0
     lab_full = rgb2lab(img_np_full).astype(np.float32)
     L_full = lab_full[:, :, 0]
     
-    # Normalizzazione coerente con i parametri di addestramento del notebook
+    # Normalizzazione per il tensore PyTorch
     L_tensor = (lab_256[:, :, 0] / 50.0) - 1.0
     L_tensor = torch.tensor(L_tensor).unsqueeze(0).unsqueeze(0).to(device)
     
     return L_tensor, L_full, orig_size
 
+# Post-elaborazione: fusione dei canali ab predetti con la luminosità originale
 def postprocess(output_tensor, L_full, orig_size):
     ab_pred = output_tensor.squeeze(0).permute(1, 2, 0).cpu().numpy()
     
-    # Denormalizzazione dei canali ab nell'intervallo LAB standard (-128, 127)
+    # Denormalizzazione dei canali ab (-128, 127)
     ab_pred = np.clip(ab_pred * 128.0, -128.0, 127.0)
     
+    # Resize del colore alla dimensione originale
     ab_full = cv2.resize(ab_pred, (orig_size[0], orig_size[1]), interpolation=cv2.INTER_LINEAR)
     
+    # Ricostruzione immagine LAB e conversione in RGB
     lab_result = np.zeros((orig_size[1], orig_size[0], 3), dtype=np.float32)
     lab_result[:, :, 0] = L_full
     lab_result[:, :, 1:] = ab_full
@@ -155,36 +173,30 @@ def postprocess(output_tensor, L_full, orig_size):
     
     return Image.fromarray(rgb_result)
 
+# Endpoint per la colorazione delle immagini
 @app.post("/colorize")
 async def colorize(file: UploadFile = File(...), model_id: str = "coco30k"):
     try:
-        print(f"[COLORIZE] Starting with model_id={model_id}")
         load_model_weights(model_id)
-        print(f"[COLORIZE] Model loaded successfully")
-        
         content = await file.read()
-        print(f"[COLORIZE] File read, size={len(content)} bytes")
         
         L_tensor, L_full, orig_size = preprocess(content)
-        print(f"[COLORIZE] Preprocessing done, tensor shape={L_tensor.shape}, orig_size={orig_size}")
         
         with torch.no_grad():
             output = model(L_tensor)
-        print(f"[COLORIZE] Model inference done, output shape={output.shape}")
         
         result_img = postprocess(output, L_full, orig_size)
-        print(f"[COLORIZE] Postprocessing done")
         
+        # Salvataggio risultato in buffer di memoria
         img_byte_arr = io.BytesIO()
         result_img.save(img_byte_arr, format='PNG')
-        print(f"[COLORIZE] Image saved to bytes, size={len(img_byte_arr.getvalue())} bytes")
         return Response(content=img_byte_arr.getvalue(), media_type="image/png")
     except Exception as e:
-        print(f"[COLORIZE ERROR] {type(e).__name__}: {str(e)}")
         import traceback
         traceback.print_exc()
         return Response(content=f"Errore: {str(e)}", status_code=500)
 
+# Endpoint per ottenere la lista dei modelli disponibili
 @app.get("/models")
 def get_models():
     return [
@@ -194,16 +206,20 @@ def get_models():
         {"id": "final1888", "name": "Finale 1888", "description": "Modello addestrato su 1888 immagini"}
     ]
 
+# Endpoint per servire l'interfaccia frontend
 @app.get("/")
 def home():
     return FileResponse("index.html")
 
+# Endpoint di controllo stato
 @app.get("/status")
 def status():
     return {"status": "ready", "current_model": current_loaded_model}
 
+# Mounting dei file statici (CSS, JS, Immagini)
 app.mount("/", StaticFiles(directory="."), name="static")
 
+# Avvio del server Uvicorn
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)
