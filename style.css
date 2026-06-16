@@ -48,7 +48,6 @@ body {
     padding: 1.25rem 1.5rem 1rem;
 }
 
-/* Texture di disturbo per ridurre il banding del gradiente */
 body::before {
     content: '';
     position: fixed;
@@ -384,7 +383,6 @@ input[type="file"] {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
-/* Griglia di sfondo per i placeholder */
 .comparison-wrapper::before {
     content: '';
     position: absolute;
