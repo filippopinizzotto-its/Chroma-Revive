@@ -1,4 +1,4 @@
-﻿# ChromaRevive
+# ChromaRevive
 
 Colorizzazione di immagini mediante intelligenza artificiale
 
@@ -12,7 +12,8 @@ Colorizzazione di immagini mediante intelligenza artificiale
 4. [Utilizzo](#utilizzo)
 5. [Struttura del progetto](#struttura-del-progetto)
 6. [Modelli disponibili](#modelli-disponibili)
-7. [Aspetti tecnici](#aspetti-tecnici)
+7. [Addestramento dei modelli](#addestramento-dei-modelli)
+8. [Aspetti tecnici](#aspetti-tecnici)
 
 ---
 
@@ -120,42 +121,73 @@ Chroma-Revive/
 ├── index.html                           # Interfaccia web
 ├── requirements.txt                     # Dipendenze Python
 ├── README.md                            # Questo file
-├── models/
-│   ├── colorizer_finale_coco15k.pth    # Pesi del modello COCO
-│   └── colorizer_finale25k.pth         # Pesi del modello MirFlickr
-├── inspect_model.py                    # Utility per l'ispezione del modello
-└── run_test.py                         # Script di test
+├── ChromaReviveSkip_gan.ipynb           # Notebook Jupyter per l'addestramento dei modelli
+└── models/                              # Cartella contenente i pesi dei modelli (.pth)
+    ├── colorizer_finale_coco30k.pth     # Pesi del modello COCO 30k
+    ├── colorizer_finale_Gan.pth         # Pesi del modello GAN
+    ├── colorizer_finaleSkip.pth         # Pesi del modello Skip Connections
+    └── colorizer_finale1888.pth         # Pesi del modello Finale 1888
 ```
 
 ---
 
 ## Modelli disponibili
 
-### Modello COCO Dataset (15000 immagini)
+### 1. COCO Dataset (30k)
+- **ID modello**: `coco30k`
+- **Pesi**: `colorizer_finale_coco30k.pth`
+- **Caratteristiche**: Addestrato su 30.000 immagini del dataset COCO. Offre la massima precisione e fedeltà dei colori su scene ricche e complesse, grazie all'ampia varietà di scenari inclusi nel dataset di training.
+- **Consigliato per**: Uso generale, scene urbane, paesaggi complessi.
 
-ID: `coco15k`
+### 2. Generative Adversarial Network
+- **ID modello**: `gan`
+- **Pesi**: `colorizer_finale_Gan.pth`
+- **Caratteristiche**: Addestrato utilizzando un framework GAN (Generativa Avversaria) con un Discriminatore custom per valutare la plausibilità del colore ed evitare l'effetto di colori "piatti" o sfocati. Produce tonalità vivide, sature e realistiche.
+- **Consigliato per**: Ritratti, foto storiche, risultati ad alto impatto fotorealistico.
 
-Caratteristiche:
-- Addestrato su 15000 immagini del dataset COCO
-- Comprensione di scene diverse
-- Copertura ampia di categorie di oggetti
-- Colorizzazione equilibrata su diversi domini
+### 3. Skip Connections Model
+- **ID modello**: `skip`
+- **Pesi**: `colorizer_finaleSkip.pth`
+- **Caratteristiche**: Architettura U-Net avanzata dotata di skip connections tra l'encoder (ResNet18) e il decoder custom. Aiuta a conservare e trasferire i dettagli geometrici e i bordi ad alta risoluzione direttamente alle fasi finali di colorizzazione.
+- **Consigliato per**: Immagini con geometrie complesse, texture definite, illustrazioni.
 
-Consigliato per: uso generale, soggetti vari
+### 4. Finale 1888
+- **ID modello**: `final1888`
+- **Pesi**: `colorizer_finale1888.pth`
+- **Caratteristiche**: Modello addestrato su un dataset ridotto di 1.888 immagini (indicato nel frontend anche come "30h COCO").
+- **Consigliato per**: Test veloci e benchmark leggeri.
 
-### Modello MirFlickr Dataset (10000 immagini)
+Nota: Si consiglia di testare diversi modelli per determinare quale produce la migliore resa cromatica in base alle caratteristiche specifiche della propria immagine.
 
-ID: `final25k`
+---
 
-Caratteristiche:
-- Addestrato su 10000 immagini del dataset MirFlickr
-- Precisione elevata nella colorizzazione
-- Ottimizzato per contenuti artistici e fotografici
-- Risultati esteticamente raffinati
+## Addestramento dei modelli
 
-Consigliato per: fotografia professionale, progetti artistici
+L'addestramento dei modelli è implementato e documentato nel notebook Jupyter [ChromaReviveSkip_gan.ipynb](file:///c:/Users/FilippoPinizzotto/OneDrive%20-%20ITS%20Angelo%20Rizzoli/Desktop/Chroma/Chroma-Revive/ChromaReviveSkip_gan.ipynb). Il processo generale segue una pipeline strutturata:
 
-Nota: Consigliamo di testare entrambi i modelli per determinare quale produce risultati migliori per le vostre immagini.
+### 1. Gestione dei Dati e Preprocessing
+- **Dataset**: Viene utilizzato principalmente il dataset **COCO 2017** o **Mirflickr**, scaricato ed estratto dinamicamente tramite `kagglehub`.
+- **Data Augmentation**: Per evitare l'effetto seppia o tonalità cromatiche monotone, vengono applicati trasformazioni casuali come `ColorJitter` (modifica di luminosità, contrasto, saturazione) e `RandomHorizontalFlip` sulle immagini di addestramento.
+- **Spazio Colore LAB**: Le immagini originali RGB vengono convertite nello spazio colore LAB:
+  - Il canale **L** (luminosità, normalizzato tra -1 e 1) viene separato e usato come input.
+  - I canali **ab** (crominanza/colori, normalizzati tra -1 e 1) rappresentano il target di predizione per la rete neurale.
+
+### 2. Strategia di Training in Due Fasi (Transfer Learning)
+Per sfruttare le feature convoluzionali pre-addestrate senza incorrere nel *catastrophic forgetting* (ossia la perdita delle conoscenze generali dell'encoder), l'addestramento viene suddiviso in due passaggi successivi:
+- **Fase 1: Encoder Congelato (Frozen Encoder)**
+  - L'encoder (backbone ResNet18 pre-addestrato su ImageNet) viene congelato (`requires_grad = False`).
+  - Viene addestrato unicamente il decoder custom (composto da blocchi convoluzionali trasposti `DecoderBlock` con `BatchNorm2d` e attivazioni `ReLU`).
+  - Questo passaggio iniziale costringe il decoder a imparare a interpretare le feature dell'encoder e a ricostruire i canali colore senza alterare la stabilità del backbone.
+- **Fase 2: Fine-Tuning Completo**
+  - L'intera rete viene sbloccata per ottimizzare tutti i pesi congiuntamente.
+  - Viene impostato un **Learning Rate differenziato**: l'encoder viene aggiornato con un learning rate estremamente basso (es. `1e-5`) per preservare le feature estratte e non distruggere la conoscenza pre-acquisita di ImageNet; il decoder viene invece aggiornato con un learning rate standard (es. `1e-4`).
+  - Viene applicato lo scheduler `ReduceLROnPlateau` per monitorare la loss sul validation set e dimezzare il learning rate in caso di stagnazione dell'addestramento (patience=3).
+
+### 3. Addestramento Avversariale (Generative Adversarial Network)
+Per il modello `gan`, l'addestramento integra una rete **Discriminatore** custom (un classificatore convoluzionale binario):
+- **Generatore (Generator)**: La nostra rete encoder-decoder (U-Net con skip connections) riceve il canale L ed elabora i canali ab stimati, cercando di massimizzare la probabilità che il Discriminatore li classifichi come "reali".
+- **Discriminatore (Discriminator)**: Impara a distinguere tra immagini reali `(L, ab_reali)` e immagini colorizzate artificialmente dal generatore `(L, ab_generati)`.
+- **Loss del Generatore**: È una loss combinata formata dalla **Loss Adversariale** (Binary Cross Entropy) e dalla **Loss L1** (moltiplicata per un fattore di scala, es. 100). La loss L1 guida la rete a ricostruire accuratamente la struttura cromatica originale, mentre la loss avversariale spinge il modello a produrre colori vibranti, saturi e privi di sfocature grigie tipiche dei soli approcci basati su regressione.
 
 ---
 
