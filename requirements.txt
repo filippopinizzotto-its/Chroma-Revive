@@ -1,7 +1,8 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch
 torchvision
-fastapi
+fastapi>=0.115,<1.0
+starlette>=0.40,<0.47
 uvicorn
 pillow
 numpy

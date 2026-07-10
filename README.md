@@ -271,8 +271,8 @@ I modelli sono stati addestrati su due dataset principali:
 - **Caratteristiche**: Architettura U-Net avanzata dotata di skip connections tra l'encoder (ResNet18) e il decoder custom. Aiuta a conservare e trasferire i dettagli geometrici e i bordi ad alta risoluzione direttamente alle fasi finali di colorizzazione.
 - **Consigliato per**: Immagini con geometrie complesse, texture definite, illustrazioni.
 
-### 4. Finale 1888
-- **ID modello**: `final1888`
+### 4. 30h COCO
+- **ID modello**: `30h`
 - **Pesi**: `colorizer_finale1888.pth`
 - **Caratteristiche**: Modello addestrato su un dataset ridotto di 1.888 immagini (indicato nel frontend anche come "30h COCO").
 - **Consigliato per**: Test veloci e benchmark leggeri.
